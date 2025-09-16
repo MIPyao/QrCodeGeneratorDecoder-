@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审计报告二维码生成器</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .app-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+        .preview-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a6491;
+            box-shadow: 0 0 0 2px rgba(74, 100, 145, 0.2);
+        }
+        button {
+            background: #4a6491;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #3a547e;
+        }
+        .qrcode-container {
+            margin: 25px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        #qrcode {
+            margin: 0 auto;
+        }
+        .url-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4a6491;
+            word-break: break-all;
+            font-size: 14px;
+        }
+        .report-type {
+            display: flex;
+            gap: 15px;
+        }
+        .report-type label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .report-type input {
+            width: auto;
+            margin-right: 5px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .secondary-btn {
+            background: #6c757d;
+        }
+        .secondary-btn:hover {
+            background: #5a6268;
+        }
+        .success-message {
+            color: #28a745;
+            margin-top: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .app-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="container">
+    <header>
+        <h1>审计报告二维码生成器</h1>
+        <p class="description">填写表单信息，生成包含URL参数的二维码</p>
+    </header>
+
+    <div class="app-content">
+        <div class="form-section">
+            <div class="form-group">
+                <label>报告类型</label>
+                <div class="report-type">
+                    <label><input type="radio" v-model="formData.reportType" value="audit"> 审计报告</label>
+                    <label><input type="radio" v-model="formData.reportType" value="verification"> 验资报告</label>
+                    <label><input type="radio" v-model="formData.reportType" value="assessment"> 评估报告</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>被审计/审验/评估单位</label>
+                <input type="text" v-model="formData.company" placeholder="请输入单位名称">
+            </div>
+
+            <div class="form-group">
+                <label>项目名称</label>
+                <input type="text" v-model="formData.project" placeholder="请输入项目名称">
+            </div>
+
+            <div class="form-group">
+                <label>报告文号</label>
+                <input type="text" v-model="formData.reportNumber" placeholder="请输入报告文号">
+            </div>
+
+            <div class="form-group">
+                <label>审计/审验/评估单位</label>
+                <input type="text" v-model="formData.auditCompany" placeholder="请输入单位名称">
+            </div>
+
+            <div class="form-group">
+                <label>签字人</label>
+                <input type="text" v-model="formData.signatories" placeholder="请输入签字人姓名，多人用空格分隔">
+            </div>
+
+            <div class="actions">
+                <button @click="generateQRCode">生成二维码</button>
+                <button class="secondary-btn" @click="saveQRCode" :disabled="!qrcodeGenerated">保存二维码</button>
+            </div>
+
+            <div v-if="successMessage" class="success-message">
+                {{ successMessage }}
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>二维码预览</h2>
+            <div class="qrcode-container">
+                <div id="qrcode"></div>
+            </div>
+
+            <div v-if="generatedUrl" class="url-display">
+                <strong>生成的URL:</strong><br>
+                {{ generatedUrl }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref, watch } = Vue;
+
+    createApp({
+        setup() {
+            const formData = ref({
+                reportType: 'audit',
+                company: '',
+                project: '',
+                reportNumber: '',
+                auditCompany: '',
+                signatories: ''
+            });
+
+            const generatedUrl = ref('');
+            const qrcodeGenerated = ref(false);
+            const successMessage = ref('');
+
+            // 示例数据填充
+            const sampleData = [
+                {
+                    reportType: 'audit',
+                    company: '宁夏云雾山果品开发有限责任公司',
+                    project: '2024年度审计报告',
+                    reportNumber: '中财国信审字（2025）第1122号',
+                    auditCompany: '北京中财国信会计师事务所有限公司',
+                    signatories: '张永贤 王文彦'
+                },
+                {
+                    reportType: 'audit',
+                    company: '重庆市重睿智睿科技有限公司',
+                    project: '研究开发费用专项审计（鉴证）报告',
+                    reportNumber: '中财国信专审字[2024]第2090-1号',
+                    auditCompany: '北京中财国信会计师事务所有限公司',
+                    signatories: '张永贤 赵瑞余'
+                }
+            ];
+
+            // 随机选择一个示例填充表单
+            const fillSampleData = () => {
+                const randomSample = sampleData[Math.floor(Math.random() * sampleData.length)];
+                formData.value = { ...randomSample };
+            };
+
+            // 页面加载时填充一个示例
+            fillSampleData();
+
+            const generateURL = () => {
+                const baseUrl = 'https://audit.example.com/report?';
+                const params = new URLSearchParams();
+
+                // 添加所有表单字段，并进行URL编码
+                Object.keys(formData.value).forEach(key => {
+                    params.append(key, encodeURIComponent(formData.value[key]));
+                });
+
+                return baseUrl + params.toString();
+            };
+
+            const generateQRCode = () => {
+                generatedUrl.value = generateURL();
+
+                // 清除之前的二维码
+                document.getElementById('qrcode').innerHTML = '';
+
+                // 生成新二维码
+                QRCode.toCanvas(document.getElementById('qrcode'), generatedUrl.value, {
+                    width: 200,
+                    height: 200,
+                    margin: 1,
+                    color: {
+                        dark: '#2c3e50',
+                        light: '#ffffff'
+                    }
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        alert('生成二维码时出错: ' + error.message);
+                    } else {
+                        qrcodeGenerated.value = true;
+                        successMessage.value = '二维码生成成功！';
+                        setTimeout(() => {
+                            successMessage.value = '';
+                        }, 3000);
+                    }
+                });
+            };
+
+            const saveQRCode = () => {
+                const canvas = document.querySelector('#qrcode canvas');
+                if (!canvas) {
+                    alert('请先生成二维码');
+                    return;
+                }
+
+                try {
+                    const link = document.createElement('a');
+                    link.download = `审计报告二维码-${formData.value.company}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    successMessage.value = '二维码保存成功！';
+                    setTimeout(() => {
+                        successMessage.value = '';
+                    }, 3000);
+                } catch (error) {
+                    console.error('保存二维码时出错:', error);
+                    alert('保存二维码时出错: ' + error.message);
+                }
+            };
+
+            // 监听表单变化，重置二维码生成状态
+            watch(formData, () => {
+                qrcodeGenerated.value = false;
+            }, { deep: true });
+
+            return {
+                formData,
+                generatedUrl,
+                qrcodeGenerated,
+                successMessage,
+                generateQRCode,
+                saveQRCode
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
