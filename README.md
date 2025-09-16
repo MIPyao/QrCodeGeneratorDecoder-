@@ -1,6 +1,6 @@
-# vue3-empty
+# qrcode-generator-decoder
 
-一个Vue3的空项目 目前整合了vue-router pinia axios element-plus(以及icon) less postcss-pxtorem autoprefixer @vitejs/plugin-legacy
+一个Vue3的url编码解码项目 目前整合了vue-router element-plus(以及icon) less autoprefixer @vitejs/plugin-legacy
 
 ## Customize configuration
 
@@ -21,5 +21,5 @@ npm run dev
 ### Compile and Minify for Production
 
 ```sh
-npm run build
+npm run build:prod
 ```
