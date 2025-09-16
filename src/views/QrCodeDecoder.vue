@@ -52,16 +52,10 @@
                 <pre class="raw-data-pre">{{ decodedData }}</pre>
               </el-card>
 
-              <div class="action-buttons">
-                <el-button type="primary" @click="printReport" size="large">
-                  <el-icon><Printer /></el-icon>
-                  打印报告
-                </el-button>
-                <el-button type="success" @click="copyData" size="large">
-                  <el-icon><CopyDocument /></el-icon>
-                  复制数据
-                </el-button>
-              </div>
+              <el-button class="action-btn" type="success" @click="copyData" size="large">
+                <el-icon><CopyDocument /></el-icon>
+                复制数据
+              </el-button>
             </div>
 
             <el-empty
@@ -101,7 +95,9 @@ const decodeReportData = () => {
       return
     }
 
-    decodedData.value = decodeURIComponent(encodedData)
+    const decoded = decodeURIComponent(encodedData);
+    // 将自定义分隔符替换回换行符
+    decodedData.value = decoded.replace(/@@NEWLINE@@/g, '\n');
     ElMessage.success('报告数据加载成功')
   } catch (error) {
     console.error('解码数据时出错:', error)
@@ -129,11 +125,6 @@ const parsedData = computed(() => {
     }
   })
 })
-
-const printReport = () => {
-  window.print()
-  ElMessage.success('正在准备打印...')
-}
 
 const copyData = async () => {
   try {
@@ -233,16 +224,12 @@ onMounted(() => {
   border: 1px solid #e4e7ed;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 30px;
-  flex-wrap: wrap;
-}
-
 .loading-container {
   padding: 20px;
+}
+
+.action-btn {
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -256,14 +243,6 @@ onMounted(() => {
 
   .description {
     font-size: 14px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .action-buttons .el-button {
-    width: 100%;
   }
 
   .description-item :deep(.el-descriptions__label) {
@@ -306,20 +285,5 @@ onMounted(() => {
 :deep(.el-tag) {
   border-radius: 6px;
   font-weight: 500;
-}
-
-@media print {
-  .action-buttons {
-    display: none;
-  }
-
-  .header-card {
-    background: white !important;
-    color: black !important;
-  }
-
-  .header {
-    color: black !important;
-  }
 }
 </style>

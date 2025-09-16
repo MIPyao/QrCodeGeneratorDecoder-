@@ -33,7 +33,6 @@
               <el-row :gutter="12">
                 <el-col :span="8">
                   <el-button
-                      block
                       type="primary"
                       @click="generateQRCode"
                       :loading="isGenerating"
@@ -46,7 +45,6 @@
                 </el-col>
                 <el-col :span="8">
                   <el-button
-                      block
                       type="success"
                       @click="saveQRCode"
                       :disabled="!qrcodeGenerated"
@@ -59,7 +57,6 @@
                 </el-col>
                 <el-col :span="8">
                   <el-button
-                      block
                       type="danger"
                       @click="clearAll"
                       size="large"
@@ -88,7 +85,7 @@
                     :closable="false"
                     show-icon
                 >
-                  <p>所有文本内容将进行URL编码，换行符会被正确编码为 <el-tag size="small">%0A</el-tag>。</p>
+                  <p>所有文本内容将进行URL编码，换行符会被替换为自定义分隔符 <el-tag size="small">@@NEWLINE@@</el-tag></p>
                   <p>生成的URL格式: <code>{{ baseUrl }}/report?data=URL_ENCODED_TEXT</code></p>
                 </el-alert>
               </el-collapse-item>
@@ -137,7 +134,7 @@
                     size="small"
                 >
                   <el-icon><CopyDocument /></el-icon>
-                  复制URL
+                  复制
                 </el-button>
               </div>
             </el-card>
@@ -180,7 +177,8 @@ const generateQRCode = async () => {
   try {
     isGenerating.value = true
 
-    const encodedText = encodeURIComponent(inputText.value)
+    const safeText = inputText.value.replace(/\n/g, '@@NEWLINE@@');
+    const encodedText = encodeURIComponent(safeText);
     generatedUrl.value = `${baseUrl.value}/report?data=${encodedText}`
 
     await nextTick()
@@ -343,8 +341,9 @@ onMounted(() => {
 .copy-btn {
   position: absolute;
   top: 5px;
-  right: 5px;
+  right: 20px;
   z-index: 1;
+  background: #eee;
 }
 
 .action-btn {
