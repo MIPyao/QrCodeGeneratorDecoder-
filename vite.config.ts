@@ -21,7 +21,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
         env = loadEnv(mode, root)
     }
     return {
-        base: env.VITE_BASE_PATH,
+        base: './',
         root: root,
         server: {
             port: env.VITE_PORT || 5173,
@@ -50,7 +50,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
             minify: 'terser',
             outDir: env.VITE_OUT_DIR || 'dist',
             sourcemap: env.VITE_SOURCEMAP === 'true' ? 'inline' : false,
-            // brotliSize: false,
+            assetsDir: 'assets',
             terserOptions: {
                 compress: {
                     drop_debugger: env.VITE_DROP_DEBUGGER === 'true',

@@ -6,7 +6,8 @@
     "dev": "vite --mode dev",
     "build:dev": "node --max_old_space_size=8192 ./node_modules/vite/bin/vite.js build --mode dev",
     "build:prod": "node --max_old_space_size=8192 ./node_modules/vite/bin/vite.js build --mode prod",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "deploy": "sh deploy.sh"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
