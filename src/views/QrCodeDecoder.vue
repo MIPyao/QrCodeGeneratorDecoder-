@@ -82,15 +82,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  Document,
-  View,
-  Printer,
-  CopyDocument
-} from '@element-plus/icons-vue'
-
 const decodedData = ref('')
 const loading = ref(true)
 

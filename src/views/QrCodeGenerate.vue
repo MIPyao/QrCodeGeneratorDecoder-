@@ -149,17 +149,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed } from 'vue'
 import QRCode from 'qrcode'
-import { ElMessage } from 'element-plus'
-import {
-  Document,
-  Aim,
-  Download,
-  Delete,
-  View,
-  CopyDocument
-} from '@element-plus/icons-vue'
 
 const inputText = ref('')
 const generatedUrl = ref('')

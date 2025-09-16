@@ -1,5 +1,4 @@
 import {fileURLToPath, URL} from 'node:url'
-import path from 'node:path'
 import type {ConfigEnv, UserConfig} from 'vite'
 import {defineConfig, loadEnv} from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -67,9 +66,6 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
         css: {
             preprocessorOptions: {
                 less: {
-                    modifyVars: {
-                        hack: `true; @import (reference) "${path.resolve('src/assets/css/index.less')}";`,
-                    },
                     javascriptEnabled: true,
                 },
             },

@@ -3,10 +3,7 @@ import App from './App.vue'
 import router from './router'
 import 'lib-flexible'
 import './assets/main.css'
-import './assets/css/index.less';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import {createPinia} from 'pinia'
-const pinia = createPinia()
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
@@ -26,4 +23,4 @@ if (import.meta.env.VITE_APP_TITLE) {
 
 app.use(router)
 
-app.use(pinia).mount('#app')
+app.mount('#app')

@@ -1,5 +1,5 @@
 let config = {
-    projectName: "vue3-empty",
+    projectName: "qrcode-generator-decoder",
     isDev:  import.meta.env.VITE_DEV,
     api: import.meta.env.VITE_BASE_URL,
     baseUrl: import.meta.env.VITE_BASE_URL,
