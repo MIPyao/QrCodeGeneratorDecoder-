@@ -3,11 +3,12 @@
     <el-card class="header-card" shadow="never">
       <div class="header">
         <h1>审计报告二维码生成器</h1>
-        <p class="description">输入报告信息，生成包含URL编码参数的二维码</p>
+        <p class="description">输入报告信息，提交到后端获取ID，生成包含报告ID的二维码</p>
       </div>
     </el-card>
 
     <div class="content">
+      
       <el-row :gutter="20">
         <el-col :xs="24" :lg="12">
           <el-card class="input-section" shadow="hover">
@@ -19,15 +20,40 @@
             </template>
 
             <el-form @submit.prevent="generateQRCode">
-              <h3>报告信息（每行一个字段，格式：字段名:值）</h3>
-              <el-form-item>
+              <h3>报告信息</h3>
+              <el-form-item label="被审计单位">
                 <el-input
-                    v-model="inputText"
-                    type="textarea"
-                    placeholder="请输入报告信息"
-                    :rows="8"
-                    resize="vertical"
-                    class="input-textarea"
+                    v-model="formData.auditedUnit"
+                    placeholder="请输入被审计单位"
+                    clearable
+                />
+              </el-form-item>
+              <el-form-item label="项目名称">
+                <el-input
+                    v-model="formData.projectName"
+                    placeholder="请输入项目名称"
+                    clearable
+                />
+              </el-form-item>
+              <el-form-item label="报告文号">
+                <el-input
+                    v-model="formData.reportNumber"
+                    placeholder="请输入报告文号"
+                    clearable
+                />
+              </el-form-item>
+              <el-form-item label="审计单位">
+                <el-input
+                    v-model="formData.auditUnit"
+                    placeholder="请输入审计单位"
+                    clearable
+                />
+              </el-form-item>
+              <el-form-item label="签字注册会计师">
+                <el-input
+                    v-model="formData.certifiedAccountant"
+                    placeholder="请输入签字注册会计师"
+                    clearable
                 />
               </el-form-item>
               <el-row :gutter="12">
@@ -72,21 +98,38 @@
             <el-divider />
 
             <el-collapse v-model="activeCollapse">
-              <el-collapse-item title="示例格式" name="example">
+              <el-collapse-item title="使用说明" name="example">
                 <el-card class="example-card" shadow="never">
-                  <pre class="example-pre">{{ exampleText }}</pre>
+                  <div class="example-content">
+                    <p><strong>填写说明：</strong></p>
+                    <ul>
+                      <li>被审计单位：必填</li>
+                      <li>项目名称：必填</li>
+                      <li>报告文号：选填</li>
+                      <li>审计单位：选填</li>
+                      <li>签字注册会计师：选填</li>
+                    </ul>
+                    <p><strong>操作流程：</strong></p>
+                    <ol>
+                      <li>填写报告信息</li>
+                      <li>点击"生成二维码"按钮</li>
+                      <li>系统将数据提交到后端并获取ID</li>
+                      <li>生成包含ID的二维码</li>
+                    </ol>
+                  </div>
                 </el-card>
               </el-collapse-item>
 
-              <el-collapse-item title="编码信息" name="encoding">
+              <el-collapse-item title="技术说明" name="encoding">
                 <el-alert
-                    title="编码说明"
+                    title="技术说明"
                     type="info"
                     :closable="false"
                     show-icon
                 >
-                  <p>所有文本内容将进行URL编码，换行符会被替换为自定义分隔符 <el-tag size="small">@@NEWLINE@@</el-tag></p>
-                  <p>生成的URL格式: <code>{{ baseUrl }}/report?data=URL_ENCODED_TEXT</code></p>
+                  <p>数据将通过API提交到后端服务器，后端返回唯一ID</p>
+                  <p>生成的URL格式: <code>{{ baseUrl }}/report?id=REPORT_ID</code></p>
+                  <p>二维码包含的是报告ID，而不是原始数据</p>
                 </el-alert>
               </el-collapse-item>
             </el-collapse>
@@ -147,8 +190,16 @@
 
 <script setup>
 import QRCode from 'qrcode'
+import { submitReport } from '@/api/report'
 
-const inputText = ref('')
+const formData = ref({
+  auditedUnit: '',
+  projectName: '',
+  reportNumber: '',
+  auditUnit: '',
+  certifiedAccountant: ''
+})
+
 const generatedUrl = ref('')
 const qrcodeGenerated = ref(false)
 const isGenerating = ref(false)
@@ -162,24 +213,29 @@ const baseUrl = computed(() => {
   return 'https://audit.example.com'
 })
 
-const exampleText = `被审计单位：宁夏云雾山果品开发有限责任公司
-项目名称：2024年度审计报告
-报告文号：中财国信审字（2025）第1122号
-审计单位：北京中财国信会计师事务所有限公司
-签字注册会计师：张永贤 王文彦`
 
 const generateQRCode = async () => {
-  if (!inputText.value.trim()) {
-    ElMessage.warning('请输入报告信息')
+  // 验证表单数据
+  if (!formData.value.auditedUnit.trim() || !formData.value.projectName.trim()) {
+    ElMessage.warning('请至少填写被审计单位和项目名称')
     return
   }
 
   try {
     isGenerating.value = true
 
-    const safeText = inputText.value.replace(/\n/g, '@@NEWLINE@@');
-    const encodedText = encodeURIComponent(safeText);
-    generatedUrl.value = `${baseUrl.value}/report?data=${encodedText}`
+    // 调用后端API提交报告数据
+    const response = await submitReport({
+      auditedUnit: formData.value.auditedUnit,
+      projectName: formData.value.projectName,
+      reportNumber: formData.value.reportNumber,
+      auditUnit: formData.value.auditUnit,
+      certifiedAccountant: formData.value.certifiedAccountant
+    })
+
+    // 从响应中获取ID
+    const reportId = response.id
+    generatedUrl.value = `${baseUrl.value}/report?id=${reportId}`
 
     await nextTick()
 
@@ -227,7 +283,13 @@ const saveQRCode = async () => {
 }
 
 const clearAll = () => {
-  inputText.value = ''
+  formData.value = {
+    auditedUnit: '',
+    projectName: '',
+    reportNumber: '',
+    auditUnit: '',
+    certifiedAccountant: ''
+  }
   generatedUrl.value = ''
   qrcodeGenerated.value = false
   ElMessage.info('已清空所有内容')
@@ -243,7 +305,7 @@ const copyUrl = async () => {
 }
 
 onMounted(() => {
-  inputText.value = exampleText
+  // 可以在这里设置默认值或加载数据
 })
 </script>
 
@@ -308,12 +370,19 @@ onMounted(() => {
   background: #fafafa;
 }
 
-.example-pre {
-  white-space: pre-wrap;
+.example-content {
   font-family: 'Microsoft YaHei', sans-serif;
   line-height: 1.6;
-  margin: 0;
   color: #606266;
+}
+
+.example-content ul, .example-content ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.example-content li {
+  margin: 5px 0;
 }
 
 .qrcode-container {

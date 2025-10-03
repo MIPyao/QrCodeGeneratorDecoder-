@@ -1,4 +1,62 @@
-# 审计报告二维码生成器（前端）
+# 项目总览
+
+本仓库采用前后端分离目录结构：
+
+- `web/` 前端应用（Vue 3 + Vite + Element Plus）
+- `server/` 后端（腾讯云 SCF 云函数骨架）
+
+## 快速开始
+
+### 前端（web）
+
+1) 进入目录并安装依赖
+
+```bash
+cd web
+pnpm install
+```
+
+2) 本地开发
+
+```bash
+pnpm run dev
+```
+
+3) 构建与预览
+
+```bash
+pnpm run build:prod
+pnpm run preview
+```
+
+配置 `VITE_API_BASE_URL` 指向后端 API 网关地址（腾讯云 API 网关到 SCF）。
+
+### 后端（server）
+
+`server/` 为腾讯云云函数最小骨架，可在腾讯云控制台创建函数并上传目录，或使用 Serverless Framework 部署。
+
+## 环境变量
+
+前端 `.env` 示例（位于 `web/` 目录内）：
+
+```env
+VITE_DEV=true
+VITE_BASE_URL=http://localhost:5173
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+生产请将 `VITE_API_BASE_URL` 替换为 API 网关公网地址。
+
+## 目录结构
+
+```
+root
+├─ README.md            # 总览（本文件）
+├─ web/                 # 前端代码
+└─ server/              # 云函数代码
+```
+
+# 审计报告二维码生成器
 
 一个基于Vue 3 + Element Plus的审计报告二维码生成系统，支持前后端分离架构。
 
@@ -31,7 +89,7 @@ src/
 └── assets/             # 静态资源
 ```
 
-## 环境配置（位于 web/ 下的 .env 文件）
+## 环境配置
 
 创建 `.env` 文件配置环境变量：
 
@@ -60,7 +118,7 @@ VITE_API_BASE_URL=https://api.your-domain.com
 - **接口**: `GET /api/reports/{id}`
 - **返回**: 报告详细信息
 
-详细API规范请参考仓库根目录的 `API_SPECIFICATION.md`
+详细API规范请参考 [API_SPECIFICATION.md](./API_SPECIFICATION.md)
 
 ## 开发指南
 
@@ -108,3 +166,4 @@ pnpm run preview
 - 确保后端API服务正常运行
 - 检查网络连接和API地址配置
 - 建议在生产环境中使用HTTPS
+

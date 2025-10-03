@@ -1,0 +1,7 @@
+{
+  "functionRoot": "./functions",
+  "functions": [],
+  "ai": {
+    "defaultAgent": "{{env.AI_DEFAULT_AGENT}}"
+  }
+}
